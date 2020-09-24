@@ -1,6 +1,6 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/build/three.module.js';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/controls/OrbitControls.js';
-import { Ocean } from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/misc/Ocean.js';
+import { Water } from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/objects/Water.js';
 
 
 // variables for event listeners
@@ -17,7 +17,7 @@ const main  = () => {
     const canvas = document.querySelector('#c');
     const renderer = new THREE.WebGLRenderer({canvas});
 
-    const fov = 20;
+    const fov = 100;
     const aspect = 2;  // the canvas default
     const near = 0.1;
     const far = 1000;
@@ -36,100 +36,66 @@ const main  = () => {
         const groundColor = 0x81D4FA;  // brownish orange
         const intensity = 0.5;
         const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-        light.position.set(0, 100, 0);
+        light.position.set(0, 0, 0);
+        scene.add(light);
+      }
+      {
+        const color = 0xFFFFFF;
+        const intensity = 1;
+        const light = new THREE.AmbientLight(color, intensity);
         scene.add(light);
       }
 
 
 
     //   add bowl
-    const points = [];
-    for (let i = 0; i < 10; ++i) {
-    points.push(new THREE.Vector2(Math.sin(i * 0.2) * 5 + 1, (i - 1) * 0.5));
-    }
-    const segments = 500;
-    const phiStart = Math.PI * 0.66; 
-    const phiLength = Math.PI * 10.00; 
-    const geometry = new THREE.LatheBufferGeometry(points, segments, phiStart, phiLength);
-    
+    // const radius =  50;
+    // const tubeRadius = 20;
+    // const radialSegments = 8;
+    // const tubularSegments = 24;
+    // const geometry = new THREE.TorusBufferGeometry(radius, tubeRadius, radialSegments, tubularSegments);
+    // const makeInstance = (geometry, color, x, y, z, rotation) => {
+    //     const material = new THREE.MeshPhongMaterial({color});
 
-    const makeInstance = (geometry, color) => {
-        const material = new THREE.MeshStandardMaterial({color: color, flatShading: true, shininess: 10, side: THREE.DoubleSide,});
+    //     const shape = new THREE.Mesh(geometry, material);
+    //     scene.add(shape);
 
-        const shape = new THREE.Mesh(geometry, material);
-        scene.add(shape);
+    //     shape.position.set(x, y, z);
+    //     shape.rotation.x = rotation;
 
-        shape.position.set (0, -0.5, 0);
+    //     return shape;
+    // }
 
-        return shape;
-    }
-
-     const shape = makeInstance(geometry, 0xF8BBD0);
+    // const torus = makeInstance(geometry, 0xFFFFFF, 0 ,0, 0, Math.PI/180 * 90);
 
     
       
+        // water
 
-    let ocean = {
-        ms_Ocean: null,
-        updateOcean : function() {
-            // water layer
-            var gsize = 512;
-            var res = 1024;
-            var gres = res / 2;
-            var origx = - gsize / 2;
-            var origz = - gsize / 2;
-            this.ms_Ocean = new Ocean( renderer, camera, scene,
-                {
-                    USE_HALF_FLOAT: false,
-                    INITIAL_SIZE: 256.0,
-                    INITIAL_WIND: [ 10.0, 10.0 ],
-                    INITIAL_CHOPPINESS: 1.5,
-                    CLEAR_COLOR: [ 1.0, 1.0, 1.0, 0.0 ],
-                    GEOMETRY_ORIGIN: [ origx, origz ],
-                    SUN_DIRECTION: [ - 1.0, 1.0, 1.0 ],
-                    OCEAN_COLOR: new THREE.Vector3( 0.004, 0.016, 0.047 ),
-                    SKY_COLOR: new THREE.Vector3( 3.2, 9.6, 12.8 ),
-                    EXPOSURE: 0.35,
-                    GEOMETRY: shape,
-                    GEOMETRY_RESOLUTION: gres,
-                    GEOMETRY_SIZE: gsize,
-                    RESOLUTION: res
-                } );
+        const radius = 7;
+        const segments = 100;
+        var waterGeometry = new THREE.CircleBufferGeometry(radius, segments)
 
-            this.ms_Ocean.materialOcean.uniforms[ "u_projectionMatrix" ] = { value: camera.projectionMatrix };
-            this.ms_Ocean.materialOcean.uniforms[ "u_viewMatrix" ] = { value: camera.matrixWorldInverse };
-            this.ms_Ocean.materialOcean.uniforms[ "u_cameraPosition" ] = { value: camera.position };
-            scene.add( this.ms_Ocean.oceanMesh );
-    
-        },
-        update: function() {
-            var currentTime = new Date().getTime();
-            this.ms_Ocean.deltaTime = ( currentTime - lastTime ) / 5000 || 0.0;
-            lastTime = currentTime;
-            this.ms_Ocean.render( this.ms_Ocean.deltaTime );
-            this.ms_Ocean.overrideMaterial = this.ms_Ocean.materialOcean;
+        var water = new Water(
+            waterGeometry,
+            {
+                textureWidth: 1,
+                textureHeight: 1,
+                waterNormals: new THREE.TextureLoader().load( 'waternormals.jpg', function ( texture ) {
 
-            if ( this.ms_Ocean.changed ) {
+                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
-                this.ms_Ocean.materialOcean.uniforms[ "u_size" ].value = this.ms_Ocean.size;
-                this.ms_Ocean.materialOcean.uniforms[ "u_sunDirection" ].value.set( this.ms_Ocean.sunDirectionX, this.ms_Ocean.sunDirectionY, this.ms_Ocean.sunDirectionZ );
-                this.ms_Ocean.materialOcean.uniforms[ "u_exposure" ].value = this.ms_Ocean.exposure;
-                this.ms_Ocean.changed = false;
-
+                } ),
+                alpha: 1.0,
+                waterColor: 0x5DADE2,
+                distortionScale: 3.7,
+                fog: scene.fog !== undefined
             }
+        );
 
-            this.ms_Ocean.materialOcean.uniforms[ "u_normalMap" ].value = this.ms_Ocean.normalMapFramebuffer.texture;
-            this.ms_Ocean.materialOcean.uniforms[ "u_displacementMap" ].value = this.ms_Ocean.displacementMapFramebuffer.texture;
-            this.ms_Ocean.materialOcean.uniforms[ "u_projectionMatrix" ].value = camera.projectionMatrix;
-            this.ms_Ocean.materialOcean.uniforms[ "u_viewMatrix" ].value = camera.matrixWorldInverse;
-            this.ms_Ocean.materialOcean.uniforms[ "u_cameraPosition" ].value = camera.position;
-            this.ms_Ocean.materialOcean.depthTest = true;
-        }
-    }
+        water.rotation.x = - Math.PI / 2;
 
-    ocean.updateOcean();
-
-        
+        scene.add( water );
 
     
 
@@ -162,7 +128,7 @@ const main  = () => {
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.render(scene, camera);
         controls.update();
-        ocean.update();
+        water.material.uniforms[ 'time' ].value += 1.0 / 500.0;
 
         
     }
