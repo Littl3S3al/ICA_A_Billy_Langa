@@ -1,7 +1,6 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/build/three.module.js';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/controls/OrbitControls.js';
 import { Ocean } from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/misc/Ocean.js';
-import { GUI } from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/libs/dat.gui.module.js';
 
 
 // variables for event listeners
@@ -50,7 +49,7 @@ const main  = () => {
     }
     const segments = 500;
     const phiStart = Math.PI * 0.66; 
-    const phiLength = Math.PI * 2.00; 
+    const phiLength = Math.PI * 10.00; 
     const geometry = new THREE.LatheBufferGeometry(points, segments, phiStart, phiLength);
     
 
@@ -65,7 +64,7 @@ const main  = () => {
         return shape;
     }
 
-    makeInstance(geometry, 0xF8BBD0);
+     const shape = makeInstance(geometry, 0xF8BBD0);
 
     
       
@@ -91,6 +90,7 @@ const main  = () => {
                     OCEAN_COLOR: new THREE.Vector3( 0.004, 0.016, 0.047 ),
                     SKY_COLOR: new THREE.Vector3( 3.2, 9.6, 12.8 ),
                     EXPOSURE: 0.35,
+                    GEOMETRY: shape,
                     GEOMETRY_RESOLUTION: gres,
                     GEOMETRY_SIZE: gsize,
                     RESOLUTION: res
@@ -104,7 +104,7 @@ const main  = () => {
         },
         update: function() {
             var currentTime = new Date().getTime();
-            this.ms_Ocean.deltaTime = ( currentTime - lastTime ) / 1000 || 0.0;
+            this.ms_Ocean.deltaTime = ( currentTime - lastTime ) / 5000 || 0.0;
             lastTime = currentTime;
             this.ms_Ocean.render( this.ms_Ocean.deltaTime );
             this.ms_Ocean.overrideMaterial = this.ms_Ocean.materialOcean;
@@ -159,7 +159,7 @@ const main  = () => {
         }
 
         requestAnimationFrame(render); 
-
+        renderer.setPixelRatio( window.devicePixelRatio );
         renderer.render(scene, camera);
         controls.update();
         ocean.update();
