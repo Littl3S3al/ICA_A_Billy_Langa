@@ -28,6 +28,9 @@ const main  = () => {
     const scene = new THREE.Scene();
 
     const controls = new OrbitControls( camera, canvas );
+    controls.pan = false;
+    controls.rotate = false;
+    controls.zoom = false;
 
 
 
@@ -49,9 +52,7 @@ const main  = () => {
       }
 
 
-
-    //   add bowl    
-    let bowl;
+    //   add bowl  
     function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
         const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
         const halfFovY = THREE.MathUtils.degToRad(camera.fov * .5);
@@ -76,33 +77,31 @@ const main  = () => {
     
         // point the camera to look at the center of the box
         camera.lookAt(boxCenter.x, boxCenter.y, boxCenter.z);
-        camera.position.set(boxCenter.x, 25, boxCenter.z)
+        camera.position.set(boxCenter.x, boxCenter.y + 6, boxCenter.z)
       }
+        {
+            const gltfLoader = new GLTFLoader();
+            gltfLoader.load('assets/bowl.gltf', (gltf) => {
+                const root = gltf.scene;
+                scene.add(root);
+                const material = new THREE.MeshPhongMaterial({color: 0xA93226 });;
+                root.children[2].material = material;
+            
+                // compute the box that contains all the stuff
+                // from root and below
+                const box = new THREE.Box3().setFromObject(root);
 
-    
-        const gltfLoader = new GLTFLoader();
-        gltfLoader.load('assets/bowl.gltf', (gltf) => {
-            const root = gltf.scene;
-            scene.add(root);
-            const material = new THREE.MeshPhongMaterial({color: 0xA93226 });;
-            root.children[2].material = material;
-        
-            // compute the box that contains all the stuff
-            // from root and below
-            const box = new THREE.Box3().setFromObject(root);
+                const boxSize = box.getSize(new THREE.Vector3()).length();
+                const boxCenter = box.getCenter(new THREE.Vector3());
 
-            const boxSize = box.getSize(new THREE.Vector3()).length();
-            const boxCenter = box.getCenter(new THREE.Vector3());
-            bowl = root.children[2];
+                // set the camera to frame the box
+                frameArea(boxSize * 0.5, boxSize, boxCenter, camera);
 
-            // set the camera to frame the box
-            frameArea(boxSize * 0.5, boxSize, boxCenter, camera);
-
-            // update the Trackball controls to handle the new size
-            controls.maxDistance = boxSize * 10;
-            controls.target.copy(boxCenter);
-            controls.update();
-        });
+                // update the Trackball controls to handle the new size
+                controls.maxDistance = boxSize * 10;
+                controls.target.copy(boxCenter);
+            });
+        }
       
       
         // water
@@ -148,11 +147,10 @@ const main  = () => {
         return needResize;
     }
 
-    const render = () => {     
-
-
-
-        
+    const render = (time) => {     
+        time *= 0.0001;
+        camera.position.y += time;
+        camera.position.x += time;
 
         if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
