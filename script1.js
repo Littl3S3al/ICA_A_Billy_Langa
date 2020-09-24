@@ -14,7 +14,6 @@ var mouseX = 0, mouseY = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 
-document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
 // three.js functions
 const main  = () => {
@@ -24,23 +23,17 @@ const main  = () => {
     const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
     camera.position.set( 0, 0, 0 );
 
-
-    // var path = "assets/Park2/";
-    // var format = '.jpg';
-    // var urls = [
-    //     path + 'posx' + format, path + 'negx' + format,
-    //     path + 'posy' + format, path + 'negy' + format,
-    //     path + 'posz' + format, path + 'negz' + format
-    // ];
-
-    // var textureCube = new THREE.CubeTextureLoader().load( urls );
-
     const scene = new THREE.Scene();
     scene.background = new THREE.Color( 0xCB4335);
-    scene.fog = new THREE.FogExp2( 0xCB4335, 0.0001 );
+    // scene.fog = new THREE.FogExp2( 0xCB4335, 0.0001 );
     
 
     const controls = new OrbitControls( camera, canvas );
+    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+    controls.dampingFactor = 0.05;
+    controls.screenSpacePanning = false;
+    controls.minDistance = 100;
+    controls.maxDistance = 500;
 
     {
         const color = 0xFFFFFF;
@@ -65,12 +58,15 @@ const main  = () => {
 
     var geometry = new THREE.SphereBufferGeometry( 100, 32, 16 );
 
-    var shader = FresnelShader;
-    var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
-
     var material = new THREE.MeshPhongMaterial( {
         color: 0xCB4335, shininess: 3
     } );
+
+    var Orbgeometry = new THREE.BoxBufferGeometry(100, 100, 100);
+    var CentralOrb = new THREE.Mesh( Orbgeometry, new THREE.MeshBasicMaterial( 0x000000 ) );
+    scene.add(CentralOrb);
+    CentralOrb.position.set(100, 100, -100);
+    camera.lookAt(100, 100, -100);
 
     for ( var i = 0; i < 500; i ++ ) {
 
@@ -81,7 +77,6 @@ const main  = () => {
         mesh.position.z = Math.random() * 10000 - 5000;
 
         mesh.scale.x = mesh.scale.y = mesh.scale.z = Math.random() * 3 + 1;
-        mesh.opacity = 0.1;
 
         scene.add( mesh );
 
@@ -104,13 +99,10 @@ const main  = () => {
         return needResize;
     }
 
-    const render = () => {    
+
+    const render = (time) => {    
         
-        var timer = 0.0001 * Date.now();
-
-        camera.position.x += ( mouseX - camera.position.x ) * .0005;
-
-        camera.lookAt( scene.position );
+        var timer = 0.0001 * Date.now();        
 
         if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
