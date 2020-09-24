@@ -56,6 +56,12 @@ const main  = () => {
         light.position.set(1, -2, -4);
         scene.add(light);
     }
+    {
+        const color = 0xFFFFFF;
+        const intensity = 0.5;
+        const light = new THREE.AmbientLight(color, intensity);
+        scene.add(light);
+    }
 
     var geometry = new THREE.SphereBufferGeometry( 100, 32, 16 );
 
@@ -75,7 +81,7 @@ const main  = () => {
         mesh.position.z = Math.random() * 10000 - 5000;
 
         mesh.scale.x = mesh.scale.y = mesh.scale.z = Math.random() * 3 + 1;
-        mesh.opacity = 0.9;
+        mesh.opacity = 0.1;
 
         scene.add( mesh );
 
@@ -102,8 +108,7 @@ const main  = () => {
         
         var timer = 0.0001 * Date.now();
 
-        camera.position.x += ( mouseX - camera.position.x ) * .00005;
-        camera.position.y += ( - mouseY - camera.position.y ) * .00005;
+        camera.position.x += ( mouseX - camera.position.x ) * .0005;
 
         camera.lookAt( scene.position );
 
