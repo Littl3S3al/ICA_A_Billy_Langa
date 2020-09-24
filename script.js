@@ -1,7 +1,7 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/build/three.module.js';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/controls/OrbitControls.js';
 import { Water } from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/objects/Water.js';
-
+import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/loaders/GLTFLoader.js';
 
 // variables for event listeners
 const beginBtn = document.querySelector('#btn-begin');
@@ -39,10 +39,12 @@ const main  = () => {
         light.position.set(0, 0, 0);
         scene.add(light);
       }
+
       {
         const color = 0xFFFFFF;
         const intensity = 1;
-        const light = new THREE.AmbientLight(color, intensity);
+        const light = new THREE.DirectionalLight(color, intensity);
+        light.position.set(-1, 2, 4);
         scene.add(light);
       }
 
@@ -67,8 +69,22 @@ const main  = () => {
     // }
 
     // const torus = makeInstance(geometry, 0xFFFFFF, 0 ,0, 0, Math.PI/180 * 90);
-
     
+    {
+        const gltfLoader = new GLTFLoader();
+        gltfLoader.load('assets/bowl.gltf', (gltf) => {
+          const root = gltf.scene;
+        //   const material = new THREE.LineBasicMaterial({color: 0xff0000});
+        //   gltf.scene.material = material;
+          scene.add(root);
+          const material = new THREE.MeshPhongMaterial({color: 0xA93226 });;
+          root.children[2].material = material;
+    
+          // compute the box that contains all the stuff
+          // from root and below
+          const box = new THREE.Box3().setFromObject(root);
+        });
+      }
       
         // water
 
