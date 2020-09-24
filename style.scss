@@ -1,0 +1,32 @@
+body{
+    margin: 0;
+    padding: 0;
+}
+
+#overlay{
+    background: black;
+    width: 100vw;
+    height: 100vh;
+    color: white;
+    z-index: 1000;
+
+    .row{
+        height: 100%;
+        display: flex;
+        align-content: center;
+        justify-content: center;
+    }
+}
+
+#three-js-container{
+    z-index: -1;
+    display: none;
+    background: black;
+
+    #c{
+        width: 100vw;
+        height: 100vh;
+        z-index: 1;
+    }
+
+}
