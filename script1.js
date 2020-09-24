@@ -25,44 +25,45 @@ const main  = () => {
     camera.position.set( 0, 0, 0 );
 
 
-    var path = "assets/Park2/";
-    var format = '.jpg';
-    var urls = [
-        path + 'posx' + format, path + 'negx' + format,
-        path + 'posy' + format, path + 'negy' + format,
-        path + 'posz' + format, path + 'negz' + format
-    ];
+    // var path = "assets/Park2/";
+    // var format = '.jpg';
+    // var urls = [
+    //     path + 'posx' + format, path + 'negx' + format,
+    //     path + 'posy' + format, path + 'negy' + format,
+    //     path + 'posz' + format, path + 'negz' + format
+    // ];
 
-    var textureCube = new THREE.CubeTextureLoader().load( urls );
+    // var textureCube = new THREE.CubeTextureLoader().load( urls );
 
     const scene = new THREE.Scene();
-    scene.background = textureCube;
+    scene.background = new THREE.Color( 0xCB4335);
+    scene.fog = new THREE.FogExp2( 0xCB4335, 0.0001 );
+    
 
     const controls = new OrbitControls( camera, canvas );
 
     {
         const color = 0xFFFFFF;
         const intensity = 1;
-        const light = new THREE.AmbientLight(color, intensity);
+        const light = new THREE.DirectionalLight(color, intensity);
+        light.position.set(-1, 2, 4);
         scene.add(light);
     }
     {
         const color = 0xFFFFFF;
         const intensity = 1;
         const light = new THREE.DirectionalLight(color, intensity);
-        light.position.set(-1, 2, 4);
+        light.position.set(1, -2, -4);
         scene.add(light);
-      }
+    }
 
     var geometry = new THREE.SphereBufferGeometry( 100, 32, 16 );
 
     var shader = FresnelShader;
     var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
 
-    var material = new THREE.ShaderMaterial( {
-        uniforms: uniforms,
-        vertexShader: shader.vertexShader,
-        fragmentShader: shader.fragmentShader
+    var material = new THREE.MeshPhongMaterial( {
+        color: 0xCB4335, shininess: 3
     } );
 
     for ( var i = 0; i < 500; i ++ ) {
@@ -74,6 +75,7 @@ const main  = () => {
         mesh.position.z = Math.random() * 10000 - 5000;
 
         mesh.scale.x = mesh.scale.y = mesh.scale.z = Math.random() * 3 + 1;
+        mesh.opacity = 0.9;
 
         scene.add( mesh );
 
@@ -100,10 +102,10 @@ const main  = () => {
         
         var timer = 0.0001 * Date.now();
 
-        camera.position.x += ( mouseX - camera.position.x ) * .05;
-				camera.position.y += ( - mouseY - camera.position.y ) * .05;
+        camera.position.x += ( mouseX - camera.position.x ) * .00005;
+        camera.position.y += ( - mouseY - camera.position.y ) * .00005;
 
-				camera.lookAt( scene.position );
+        camera.lookAt( scene.position );
 
         if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
