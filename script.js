@@ -22,7 +22,7 @@ const main  = () => {
     const near = 0.1;
     const far = 1000;
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    camera.position.set( 0, 0, 10 );
+    camera.position.set( 0, 20, 10 );
 
 
     const scene = new THREE.Scene();
@@ -50,45 +50,64 @@ const main  = () => {
 
 
 
-    //   add bowl
-    // const radius =  50;
-    // const tubeRadius = 20;
-    // const radialSegments = 8;
-    // const tubularSegments = 24;
-    // const geometry = new THREE.TorusBufferGeometry(radius, tubeRadius, radialSegments, tubularSegments);
-    // const makeInstance = (geometry, color, x, y, z, rotation) => {
-    //     const material = new THREE.MeshPhongMaterial({color});
-
-    //     const shape = new THREE.Mesh(geometry, material);
-    //     scene.add(shape);
-
-    //     shape.position.set(x, y, z);
-    //     shape.rotation.x = rotation;
-
-    //     return shape;
-    // }
-
-    // const torus = makeInstance(geometry, 0xFFFFFF, 0 ,0, 0, Math.PI/180 * 90);
+    //   add bowl    
+    let bowl;
+    function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
+        const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
+        const halfFovY = THREE.MathUtils.degToRad(camera.fov * .5);
+        const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
+        // compute a unit vector that points in the direction the camera is now
+        // in the xz plane from the center of the box
+        const direction = (new THREE.Vector3())
+            .subVectors(camera.position, boxCenter)
+            .multiply(new THREE.Vector3(1, 0, 1))
+            .normalize();
     
-    {
+        // move the camera to a position distance units way from the center
+        // in whatever direction the camera was from the center already
+        camera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
+    
+        // pick some near and far values for the frustum that
+        // will contain the box.
+        camera.near = boxSize / 100;
+        camera.far = boxSize * 100;
+    
+        camera.updateProjectionMatrix();
+    
+        // point the camera to look at the center of the box
+        camera.lookAt(boxCenter.x, boxCenter.y, boxCenter.z);
+        camera.position.set(boxCenter.x, 25, boxCenter.z)
+      }
+
+    
         const gltfLoader = new GLTFLoader();
         gltfLoader.load('assets/bowl.gltf', (gltf) => {
-          const root = gltf.scene;
-        //   const material = new THREE.LineBasicMaterial({color: 0xff0000});
-        //   gltf.scene.material = material;
-          scene.add(root);
-          const material = new THREE.MeshPhongMaterial({color: 0xA93226 });;
-          root.children[2].material = material;
-    
-          // compute the box that contains all the stuff
-          // from root and below
-          const box = new THREE.Box3().setFromObject(root);
+            const root = gltf.scene;
+            scene.add(root);
+            const material = new THREE.MeshPhongMaterial({color: 0xA93226 });;
+            root.children[2].material = material;
+        
+            // compute the box that contains all the stuff
+            // from root and below
+            const box = new THREE.Box3().setFromObject(root);
+
+            const boxSize = box.getSize(new THREE.Vector3()).length();
+            const boxCenter = box.getCenter(new THREE.Vector3());
+            bowl = root.children[2];
+
+            // set the camera to frame the box
+            frameArea(boxSize * 0.5, boxSize, boxCenter, camera);
+
+            // update the Trackball controls to handle the new size
+            controls.maxDistance = boxSize * 10;
+            controls.target.copy(boxCenter);
+            controls.update();
         });
-      }
+      
       
         // water
 
-        const radius = 7;
+        const radius = 9.5;
         const segments = 100;
         var waterGeometry = new THREE.CircleBufferGeometry(radius, segments)
 
@@ -110,6 +129,7 @@ const main  = () => {
         );
 
         water.rotation.x = - Math.PI / 2;
+        water.position.set(radius/2 + 2, 11, 0);
 
         scene.add( water );
 
