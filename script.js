@@ -148,7 +148,7 @@ const main  = () => {
     }
 
     const render = (time) => {     
-        time *= 0.0001;
+        time *= 0.00005;
         camera.position.y += time;
         camera.position.x += time;
 
