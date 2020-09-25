@@ -19,9 +19,12 @@ let spheres = [];
 // three.js functions
 const main  = () => {
 
+    const origin = 1000;
+
     const canvas = document.querySelector('#c');
     const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 100000 );
     camera.target = new THREE.Vector3( 0, 0, 0 );
+    camera.position.set( 0, 0, origin );
 
     //
 
@@ -86,7 +89,9 @@ const main  = () => {
 
     }
 
-
+    const videoBubble = new THREE.Mesh( geometry, material );
+    mesh.position.set(0, 0, 0);
+    womb.add(videoBubble);
 
 
     //
