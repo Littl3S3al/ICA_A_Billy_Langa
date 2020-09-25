@@ -39,9 +39,7 @@ const main  = () => {
 
     const scene = new THREE.Scene();
     scene.background = textureCube;
-    // scene.background = new THREE.Color( 0xCB4335);
-
-    //
+    scene.fog = new THREE.FogExp2( 0xab2b2c , 0.00001 );
 
     var geometry = new THREE.SphereBufferGeometry( 100, 32, 16 );
 
@@ -64,8 +62,8 @@ const main  = () => {
     // invert the geometry on the x-axis so that all of the faces point inward
     sphereGeo.scale( - 100, 100, 100 );
 
-    var texture = new THREE.TextureLoader().load( 'assets/2294472375_24a3b8ef46_o.jpg' );
-    var envMaterail = new THREE.MeshBasicMaterial( { map: texture } );
+    var texture = new THREE.TextureLoader().load( 'assets/sunset_red.jpeg' );
+    var envMaterail = new THREE.MeshBasicMaterial( { map: texture, transparent: true, opacity: 0.8} );
 
     const womb = new THREE.Mesh( sphereGeo, envMaterail );
 
@@ -114,11 +112,11 @@ const main  = () => {
 
     const render = () => {
 
-        var timer = 0.0001 * Date.now();
+        var timer = 0.00003 * Date.now();
 
         womb.rotation.y = timer*2;
 
-        camera.lookAt( scene.position );
+        
 
         for ( var i = 0, il = spheres.length; i < il; i ++ ) {
 
