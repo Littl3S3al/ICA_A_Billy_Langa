@@ -10,6 +10,8 @@ const popupWindow = document.querySelector('.popup-window');
 const closeBtn = document.querySelector('#btn-close');
 
 let spheres = [];
+
+let playwomb = true;
 // var mouseX = 0, mouseY = 0;
 // var windowHalfX = window.innerWidth / 2;
 // var windowHalfY = window.innerHeight / 2;
@@ -20,6 +22,9 @@ let spheres = [];
 const main  = () => {
 
     const origin = 1000;
+    const markerz = 260;
+    const markerxy = 800;
+    const timeBet = 1000;
 
     const canvas = document.querySelector('#c');
     const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 100000 );
@@ -30,6 +35,7 @@ const main  = () => {
 
     
 
+    // reflective surface for the bubles
     var path = "assets/Park2/";
     var format = '.jpg';
     var urls = [
@@ -43,7 +49,8 @@ const main  = () => {
     const scene = new THREE.Scene();
     scene.background = textureCube;
     scene.fog = new THREE.FogExp2( 0xab2b2c , 0.00001 );
-
+    
+    // variables for the bubbles
     var geometry = new THREE.SphereBufferGeometry( 100, 32, 16 );
 
     var shader = FresnelShader;
@@ -57,10 +64,7 @@ const main  = () => {
 
     
 
-
-
-
-    // big environment sphere
+    // big environment sphere (womb)
     var sphereGeo = new THREE.SphereBufferGeometry( 500, 60, 40 );
     // invert the geometry on the x-axis so that all of the faces point inward
     sphereGeo.scale( - 100, 100, 100 );
@@ -72,7 +76,8 @@ const main  = () => {
 
     scene.add( womb );
 
-   
+
+    // adding the randomised bubles
     for ( var i = 0; i < 500; i ++ ) {
 
         var mesh = new THREE.Mesh( geometry, material );
@@ -89,8 +94,11 @@ const main  = () => {
 
     }
 
-    const videoBubble = new THREE.Mesh( geometry, material );
-    mesh.position.set(0, 0, 0);
+
+    // the main event bubble
+    var Biggeometry = new THREE.SphereBufferGeometry( 200, 32, 16 );
+    const videoBubble = new THREE.Mesh( Biggeometry, material );
+    videoBubble.position.set(markerxy, markerxy, 0);
     womb.add(videoBubble);
 
 
@@ -119,10 +127,25 @@ const main  = () => {
 
         var timer = 0.00003 * Date.now();
 
+        // rotate womb
         womb.rotation.y = timer*2;
+
+        if(camera.position.z > markerz){
+            camera.position.z -= ((origin-markerz)/timeBet);
+        }
+        if (camera.position.y < markerxy){
+            camera.position.y += (markerxy/timeBet);
+        }
+        if(videoBubble.position.x > 0){
+            videoBubble.position.x -= (markerxy/timeBet);
+        }
+        if(camera.position.y >= markerxy && camera.position.z <= markerz){
+            playwomb = false;
+        }
 
         
 
+        // move bubles randomly
         for ( var i = 0, il = spheres.length; i < il; i ++ ) {
 
             var sphere = spheres[ i ];
@@ -139,9 +162,11 @@ const main  = () => {
         }
        
 
-        requestAnimationFrame(render);
-        renderer.setPixelRatio( window.devicePixelRatio ); 
-        renderer.render(scene, camera);
+        if(playwomb){
+            requestAnimationFrame(render);
+            renderer.setPixelRatio( window.devicePixelRatio ); 
+            renderer.render(scene, camera);
+        }
 
         
     }
