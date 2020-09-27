@@ -8,23 +8,22 @@ const overlay = document.querySelector('#overlay');
 const threeJsWindow = document.querySelector('#three-js-container');
 const popupWindow = document.querySelector('.popup-window');
 const closeBtn = document.querySelector('#btn-close');
+const videoPlaceholder = popupWindow.querySelector('.video');
 
 let spheres = [];
 
+let newCycle = true;
 let playwomb = true;
-// var mouseX = 0, mouseY = 0;
-// var windowHalfX = window.innerWidth / 2;
-// var windowHalfY = window.innerHeight / 2;
-
-// document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+let iterations = 0;
 
 // three.js functions
 const main  = () => {
 
+    console.log('begin');
     const origin = 1000;
     const markerz = 260;
     const markerxy = 800;
-    const timeBet = 1000;
+    const timeBet = 500;
 
     const canvas = document.querySelector('#c');
     const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 100000 );
@@ -96,9 +95,9 @@ const main  = () => {
 
 
     // the main event bubble
-    var Biggeometry = new THREE.SphereBufferGeometry( 200, 32, 16 );
+    var Biggeometry = new THREE.SphereBufferGeometry( 200, 50, 50 );
     const videoBubble = new THREE.Mesh( Biggeometry, material );
-    videoBubble.position.set(markerxy, markerxy, 0);
+    videoBubble.position.set(markerxy, markerxy/2, 0);
     womb.add(videoBubble);
 
 
@@ -127,23 +126,30 @@ const main  = () => {
 
         var timer = 0.00003 * Date.now();
 
-        // rotate womb
-        womb.rotation.y = timer*2;
+        if (newCycle){
+            camera.position.set( 0, 0, origin );
+            newCycle = false;
+        }
 
-        if(camera.position.z > markerz){
+
+        // rotate womb
+        womb.rotation.y = timer*3;
+
+        if(playwomb && camera.position.z > markerz){
             camera.position.z -= ((origin-markerz)/timeBet);
         }
-        if (camera.position.y < markerxy){
-            camera.position.y += (markerxy/timeBet);
+        if (playwomb && camera.position.y < markerxy/2){
+            camera.position.y += (markerxy/2/timeBet);
         }
-        if(videoBubble.position.x > 0){
+        if(playwomb && videoBubble.position.x > 0){
             videoBubble.position.x -= (markerxy/timeBet);
         }
-        if(camera.position.y >= markerxy && camera.position.z <= markerz){
-            playwomb = false;
-        }
-
-        
+        if(playwomb && camera.position.y >= markerxy/2 && camera.position.z <= markerz){
+            setTimeout(() => {
+                playwomb = false;
+                playVideo();
+            }, 2000);
+        }  
 
         // move bubles randomly
         for ( var i = 0, il = spheres.length; i < il; i ++ ) {
@@ -161,12 +167,9 @@ const main  = () => {
         camera.updateProjectionMatrix();
         }
        
-
-        if(playwomb){
-            requestAnimationFrame(render);
-            renderer.setPixelRatio( window.devicePixelRatio ); 
-            renderer.render(scene, camera);
-        }
+        renderer.render(scene, camera);
+        renderer.setPixelRatio( window.devicePixelRatio ); 
+        requestAnimationFrame(render);
 
         
     }
@@ -185,14 +188,19 @@ beginBtn.addEventListener('click', () => {
 
 closeBtn.addEventListener('click', () => {
     popupWindow.classList.add('hide');
+    iterations ++;
+    main();
+    playwomb = true;
+    newCycle = true;
     setTimeout(() => {
         popupWindow.style.display = 'none';
     }, 1000);
 })
 
-// function onDocumentMouseMove( event ) {
 
-//     mouseX = ( event.clientX - windowHalfX ) * 10;
-//     mouseY = ( event.clientY - windowHalfY ) * 10;
 
-// }
+function playVideo() {
+    popupWindow.style.display = 'flex';
+    popupWindow.style.opacity = 1;
+    videoPlaceholder.innerHTML = ` <iframe src="https://player.vimeo.com/video/59065393?autoplay=1&title=0&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="fullscreen"></iframe><script src="https://player.vimeo.com/api/player.js"></script>`
+}
