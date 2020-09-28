@@ -9,16 +9,26 @@ const threeJsWindow = document.querySelector('#three-js-container');
 const popupWindow = document.querySelector('.popup-window');
 const closeBtn = document.querySelector('#btn-close');
 const videoPlaceholder = popupWindow.querySelector('.video');
+const wombsound = document.querySelector('audio');
 
 let spheres = [];
 
 let newCycle = true;
 let playwomb = true;
+
 let iterations = 0;
+const videos = [
+    `<iframe src="https://player.vimeo.com/video/59065393?autoplay=1&title=0&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="autoplay, fullscreen"></iframe><script src="https://player.vimeo.com/api/player.js"></script>`
+    // `<iframe src="https://player.vimeo.com/video/32782838?autoplay=1&title=0&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="autoplay, fullscreen"></iframe><script src="https://player.vimeo.com/api/player.js"></script>`, 
+    // `<iframe src="https://player.vimeo.com/video/59065393?autoplay=1&title=0&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="autoplay, fullscreen"></iframe><script src="https://player.vimeo.com/api/player.js"></script>`
+];
+
+let cameraTurn = false;
+
 
 // three.js functions
 const main  = () => {
-
+    
     console.log('begin');
     const origin = 1000;
     const markerz = 260;
@@ -135,6 +145,7 @@ const main  = () => {
         // rotate womb
         womb.rotation.y = timer*3;
 
+        // changing buble position when videos are still being played
         if(playwomb && camera.position.z > markerz){
             camera.position.z -= ((origin-markerz)/timeBet);
         }
@@ -145,11 +156,16 @@ const main  = () => {
             videoBubble.position.x -= (markerxy/timeBet);
         }
         if(playwomb && camera.position.y >= markerxy/2 && camera.position.z <= markerz){
+            mutesound(false);
+            playwomb = false;
             setTimeout(() => {
-                playwomb = false;
                 playVideo();
             }, 2000);
         }  
+
+        if(cameraTurn){
+            womb.rotation.x = timer*5;
+        }
 
         // move bubles randomly
         for ( var i = 0, il = spheres.length; i < il; i ++ ) {
@@ -184,23 +200,67 @@ beginBtn.addEventListener('click', () => {
     overlay.style.display = 'none';
     threeJsWindow.style.display = 'block';
     main();
+    wombsound.play();
+    wombsound.volume = 1;
 });
 
 closeBtn.addEventListener('click', () => {
     popupWindow.classList.add('hide');
-    iterations ++;
     main();
-    playwomb = true;
-    newCycle = true;
+    wombsound.play();
+    mutesound(true);
+    closeBtn.classList.add('d-none');
+    if(iterations < videos.length){
+        playwomb = true;
+        newCycle = true;
+    } else {
+        cameraTurn = true;
+        console.log('camera turn')
+    }
     setTimeout(() => {
         popupWindow.style.display = 'none';
     }, 1000);
+    videoPlaceholder.innerHTML = '';
 })
 
 
 
-function playVideo() {
+function playVideo() {   
     popupWindow.style.display = 'flex';
     popupWindow.style.opacity = 1;
-    videoPlaceholder.innerHTML = ` <iframe src="https://player.vimeo.com/video/59065393?autoplay=1&title=0&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="fullscreen"></iframe><script src="https://player.vimeo.com/api/player.js"></script>`
+    videoPlaceholder.innerHTML = videos[iterations];
+    iterations ++;
+    setTimeout(() => {
+        closeBtn.classList.remove('d-none');
+    }, 5000)
+
+}
+
+function mutesound(positive){
+    let interval;
+    let difference;
+    // check if volume to increase or decrease
+    if(positive){
+        interval = 0.1;
+        difference = 0;
+    } else {
+        interval = -0.1;
+        difference = 1;
+    };
+    
+    // interval to increase/decreas volume
+    const muting = setInterval(() => {
+        difference = Math.round((difference + interval) * 10) / 10;
+        if(positive && wombsound.volume < difference){
+            wombsound.volume = difference;
+        } else if (!positive && wombsound.volume > difference){
+            wombsound.volume = difference;
+        }
+        if(wombsound.volume === 0){
+            wombsound.pause();
+            clearInterval(muting); 
+        } else if(wombsound.volume === 1){
+            clearInterval(muting);
+        }
+    }, 500);
 }

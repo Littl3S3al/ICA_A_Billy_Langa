@@ -44,7 +44,7 @@ body {
 }
 
 .popup-window {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.1);
   width: 100vw;
   height: 100vh;
   z-index: 100;
