@@ -21,13 +21,14 @@ let firstLoad = true;
 let spheres = [];
 
 let newCycle = true;
+let readyToMove = true;
 let playwomb = true;
 let rotX = 0;
 let iterations = 0;
 const videos = [
+    `<iframe src="https://player.vimeo.com/video/59065393?autoplay=1&title=0&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="autoplay, fullscreen"></iframe><script src="https://player.vimeo.com/api/player.js"></script>`,
+    `<iframe src="https://player.vimeo.com/video/32782838?autoplay=1&title=0&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="autoplay, fullscreen"></iframe><script src="https://player.vimeo.com/api/player.js"></script>`, 
     `<iframe src="https://player.vimeo.com/video/59065393?autoplay=1&title=0&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="autoplay, fullscreen"></iframe><script src="https://player.vimeo.com/api/player.js"></script>`
-    // `<iframe src="https://player.vimeo.com/video/32782838?autoplay=1&title=0&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="autoplay, fullscreen"></iframe><script src="https://player.vimeo.com/api/player.js"></script>`, 
-    // `<iframe src="https://player.vimeo.com/video/59065393?autoplay=1&title=0&byline=0&portrait=0" style="width:100%;height:100%;" frameborder="0" allow="autoplay, fullscreen"></iframe><script src="https://player.vimeo.com/api/player.js"></script>`
 ];
 
 let cameraTurn = false;
@@ -35,15 +36,18 @@ let cameraTurn = false;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 
+let repositionBubble = false;
+
+
 
 // three.js functions
 const main  = () => {
     
     console.log('begin');
-    const origin = 1000;
+    const origin = 2000;
     const markerz = 260;
     const markerxy = 800;
-    const timeBet = 500;
+    const timeBet = 1000;
 
     const canvas = document.querySelector('#c');
     const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 100000 );
@@ -107,6 +111,7 @@ const main  = () => {
     var Biggeometry = new THREE.SphereBufferGeometry( 200, 50, 50 );
     const videoBubble = new THREE.Mesh( Biggeometry, material );
     videoBubble.position.set(markerxy, markerxy/2, 0);
+
 
 
     //
@@ -173,7 +178,10 @@ const main  = () => {
             var timer = 0.00003 * Date.now();
 
             if (newCycle){
-                camera.position.set( 0, 0, origin );
+                setTimeout(()=> {
+                    camera.position.set( 0, 0, origin );
+                    readyToMove = true;
+                }, 1200)
                 newCycle = false;
             }
 
@@ -182,16 +190,16 @@ const main  = () => {
             womb.rotation.y = timer*3;
 
             // changing buble position when videos are still being played
-            if(playwomb && camera.position.z > markerz){
+            if(readyToMove && playwomb && camera.position.z > markerz){
                 camera.position.z -= ((origin-markerz)/timeBet);
             }
-            if (playwomb && camera.position.y < markerxy/2){
+            if (readyToMove && playwomb && camera.position.y < markerxy/2){
                 camera.position.y += (markerxy/2/timeBet);
             }
-            if(playwomb && videoBubble.position.x > 0){
+            if(readyToMove && playwomb && videoBubble.position.x > 0){
                 videoBubble.position.x -= (markerxy/timeBet);
             }
-            if(playwomb && camera.position.y >= markerxy/2 && camera.position.z <= markerz){
+            if(readyToMove && playwomb && camera.position.y >= markerxy/2 && camera.position.z <= markerz){
                 mutesound(false);
                 playwomb = false;
                 setTimeout(() => {
@@ -200,9 +208,12 @@ const main  = () => {
             }  
 
             if(womb.rotation.x < 1 && cameraTurn){
+                readyToMove = true;
                 womb.rotation.x += rotX;
-                rotX += 0.001 * (Math.PI/180);
-            } else if( womb.rotation.x > 1){
+                rotX += 0.00005 * (Math.PI/180);
+            } 
+            
+            if( womb.rotation.x > 0.8){
                 transitionLayer.style.opacity = 1;
                 mutesound(false);
             }
@@ -251,6 +262,7 @@ closeBtn.addEventListener('click', () => {
     if(iterations < videos.length){
         playwomb = true;
         newCycle = true;
+        readyToMove = false;
     } else {
         cameraTurn = true;
         console.log('camera turn')
