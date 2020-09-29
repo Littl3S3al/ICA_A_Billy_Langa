@@ -51,6 +51,12 @@ body {
   height: 100vh;
   z-index: 1;
 }
+#three-js-container #d {
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+  display: none;
+}
 
 #loading {
   position: fixed;

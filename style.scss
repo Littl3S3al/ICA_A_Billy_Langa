@@ -54,6 +54,14 @@ body{
         z-index: 1;
     }
 
+    #d{
+        width: 100vw;
+        height: 100vh;
+        z-index: 2;
+        display: none;
+    }
+
+
 }
 
 #loading {
