@@ -68,6 +68,7 @@ body {
   margin: 1.5em;
   border: 1px solid white;
   width: 50vw;
+  background: black;
 }
 
 #loading .progressbar {
@@ -75,7 +76,7 @@ body {
   background: white;
   height: 1em;
   transform-origin: top left;
-  transform: scaleX(0);
+  width: 50%;
 }
 
 .popup-window {

@@ -140,8 +140,8 @@ const main  = () => {
     };
 
     loadManager.onProgress = (urlOfLastItemLoaded, itemsLoaded, itemsTotal) => {
-        const progress = itemsLoaded / itemsTotal;
-        progressBarElem.style.transform = `scaleX(${progress})`;
+        const progress = itemsLoaded / itemsTotal*100;
+        progressBarElem.style.width = progress + '%';
       };
 
 
