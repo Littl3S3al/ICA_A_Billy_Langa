@@ -29,18 +29,53 @@ body {
   background: black;
 }
 #three-js-container #vignett {
-  background: white;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0) 49%, black 100%);
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0) 49%, black 100%);
   width: 100vw;
   height: 100vh;
   z-index: 2;
   position: fixed;
   top: 0;
 }
+#three-js-container #transition {
+  background: black;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 5s ease-in-out !important;
+}
 #three-js-container #c {
   width: 100vw;
   height: 100vh;
   z-index: 1;
+}
+
+#loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#loading .progress {
+  margin: 1.5em;
+  border: 1px solid white;
+  width: 50vw;
+}
+
+#loading .progressbar {
+  margin: 2px;
+  background: white;
+  height: 1em;
+  transform-origin: top left;
+  transform: scaleX(0);
 }
 
 .popup-window {
